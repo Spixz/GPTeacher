@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:gpteacher/class/conversations/subjects/subject.class.dart';
 import 'package:gpteacher/enums/LanguageLevel.dart';
 
 class HomeState {
@@ -7,7 +8,7 @@ class HomeState {
     LanguageLevel.intermediate,
     LanguageLevel.expert
   ];
-  final List<String> availaibleSubjects = ['At restaurant', 'In the bus'];
+  final List<String> availaibleSubjects = AllSubjects.keys.toList();
   final String agentOutput;
   final String userInput;
 

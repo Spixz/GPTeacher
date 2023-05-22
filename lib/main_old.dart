@@ -17,7 +17,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:gpteacher/cheetah_manager.dart';
-// import 'package:flutter_tts/flutter_tts_web.dart';
+
+class TTS {
+  FlutterTts flutterTts = FlutterTts();
+  String gptOutputBuff = "";
+  Queue<String> gptOutputQueue = Queue();
+  bool isSpeaking = false;
+  int ttsReadingCout = 0;
+  int totalNumberOfCuts = 0;
+  String transcriptText = "";
+
+  Future<void> initTts() async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setPitch(1);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setSpeechRate(0.5);
+
+    flutterTts.setCompletionHandler(() {
+      gptOutputQueue.removeLast();
+      isSpeaking = false;
+      ttsReadingCout++;
+      if (totalNumberOfCuts == ttsReadingCout) {
+        totalNumberOfCuts = 0;
+        ttsReadingCout = 0;
+        transcriptText = "";
+        gptOutputBuff = "";
+        gptOutputQueue.clear();
+        print("de nouveau en écoute");
+        //TODO: _startProcessing(); //GetIT ou dans la même classe
+      }
+      if (gptOutputQueue.isNotEmpty) {
+        isSpeaking = true;
+        _speak(gptOutputQueue.last);
+      }
+    });
+    // await flutterTts.setVoice({"name": "en-us-x-sfg#male_1-local"});
+    // await flutterTts.setSharedInstance(true);
+  }
+
+
+    Future _speak(String text) async {
+    // _stopProcessing(); TODO: Chetah get it
+    flutterTts.speak(text);
+  }
+}
 
 void main() {
   runApp(MyApp());

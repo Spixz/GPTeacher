@@ -69,11 +69,13 @@ class _PromptUserMessageState extends ConsumerState<PromptUserMessage> {
                   onSubmitted: (text) => (text)),
             ),
           ),
-          // IconButton(
-          //     onPressed: () {
-          //       selectAndSendFile();
-          //     },
-          //     icon: const Icon(Icons.camera_alt, color: Colors.grey)),
+          IconButton(
+              onPressed: () {
+                ref
+                    .read(homeViewModelProvider.notifier)
+                    .askToGPT(messageController.text);
+              },
+              icon: const Icon(Icons.camera_alt, color: Colors.grey)),
         ],
       ),
     );
