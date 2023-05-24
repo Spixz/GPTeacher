@@ -1,5 +1,6 @@
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gpteacher/features/app.dart';
+import 'package:gpteacher/features/get_int_injector.dart';
 import 'package:gpteacher/localization/string_hardcoded.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,8 @@ void main() async {
   // turn off the # in the URLs on the web
   usePathUrlStrategy();
   registerErrorHandlers();
+    setupLocator();
+
   runApp(const ProviderScope(child: MyApp()));
 }
 

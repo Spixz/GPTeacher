@@ -2,16 +2,27 @@ import 'dart:io';
 
 import 'package:cheetah_flutter/cheetah_error.dart';
 import 'package:gpteacher/cheetah_manager.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+
 
 class STT {
   final String accessKey =
       'iucMFDyWvdaKiUzqtipwoQ4jiNSweUIzlUAAxhua49hi/iZHUd+Axw=='; // AccessKey obtained from Picovoice Console (https://console.picovoice.ai/)
   late CheetahManager
       _cheetahManager; //utiliser une facotry qui permettre de l'init ici avec des callbacks
+      SpeechToText speechToText = SpeechToText();
+
+
 
   STT(Function(String) transcriptCallback,
       Function(CheetahException) errorCallback) {
     initCheetah(transcriptCallback, errorCallback);
+    // speechToText.initialize();
+    
+  }
+
+  STT.native(Function(SpeechResultListener) transcriptCallback) {
+
   }
 
   Future<void> initCheetah(Function(String) transcriptCallback,
@@ -46,6 +57,7 @@ class STT {
   }
 
   Future<void> startProcess() async {
+await speechToText.listen(onResult: );
     await _cheetahManager.startProcess();
   }
 

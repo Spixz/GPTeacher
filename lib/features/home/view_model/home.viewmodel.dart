@@ -6,12 +6,13 @@ import 'package:gpteacher/class/STT.class.dart';
 import 'package:gpteacher/class/TTS.class.dart';
 import 'package:gpteacher/class/conversations/ConversationManager.class.dart';
 import 'package:gpteacher/enums/LanguageLevel.dart';
+import 'package:gpteacher/features/get_int_injector.dart';
 import 'package:gpteacher/features/home/view_model/home.state.dart';
 
 class HomeViewModel extends StateNotifier<HomeState> {
-  late STT stt = STT(voiceTranscriptCallback, voiceTranscriptErrorCallback);
   late ConversationManager conversationManager;
-  TTS tts = TTS();
+  //TTS TTS({required HomeBiewModel homeView}})
+  late TTS tts;
 
   final openAI = OpenAI.instance.build(
       token: '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',
@@ -30,6 +31,13 @@ class HomeViewModel extends StateNotifier<HomeState> {
         )) {
     conversationManager =
         ConversationManager(subjectName: state.selectedSubject);
+    locator.registerSingleton<STT>(
+        STT(voiceTranscriptCallback, voiceTranscriptErrorCallback));
+        tts = TTS(homeView: this);
+  }
+
+  set userInput(String value) {
+    state = state.copyWith(userInput: value);
   }
 
   void setSelectedSubject(String subject) {
@@ -60,7 +68,8 @@ class HomeViewModel extends StateNotifier<HomeState> {
     String prevAgOut = state.agentOutput;
     final req = conversationManager.generator(
         userInput: userInput,
-        previousAnswer: state.agentOutput, //nik sa mere faire une sliding windows.
+        previousAnswer:
+            state.agentOutput, //nik sa mere faire une sliding windows.
         level: state.selectedLanguageLevel,
         data: <String, dynamic>{'userinfos': userInfos});
     print("\n\nRequete envoyé à l'agent");
@@ -79,8 +88,11 @@ class HomeViewModel extends StateNotifier<HomeState> {
         String newEntry = it.choices.last.message!.content;
         state = state.copyWith(agentOutput: state.agentOutput + newEntry);
         agentOutputBuff += newEntry;
-        if (['.', '? ', '! ', ';'].contains(newEntry)) {
+        print("$newEntry tts: ${state.ttsEnabled}");
+        if (newEntry.contains(RegExp(r'[\.|\?|\!|\;]'))) {
           if (state.ttsEnabled) {
+            //desactivativation ici
+            print("Ajout de la phrase à la queue de lecture");
             tts.addNewSentenceToQueue(agentOutputBuff);
           }
           agentOutputBuff = "";
@@ -91,7 +103,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
       tts.textInAdding = false;
       print("Réponse final de l'agent");
       print(state.agentOutput);
-        conversationManager.summarize(userInput, prevAgOut);
+      conversationManager.summarize(userInput, prevAgOut);
     });
   }
 
@@ -104,7 +116,8 @@ class HomeViewModel extends StateNotifier<HomeState> {
       return;
     }
     try {
-      stt.startProcess();
+      //  stt.startProcess();
+      locator.get<STT>().startProcess();
       state = state.copyWith(userInput: "");
       voiceInProcess = true;
     } on CheetahException catch (ex) {
@@ -117,11 +130,15 @@ class HomeViewModel extends StateNotifier<HomeState> {
       return;
     }
     try {
-      await stt.stopProcess();
+      await locator.get<STT>().stopProcess();
       voiceInProcess = false;
     } on CheetahException catch (ex) {
       print("Failed to start audio capture: ${ex.message}");
     }
+  }
+
+  void voiceProcessing(bool value) {
+    state = state.copyWith(isListeningAudio: value);
   }
 
   void voiceTranscriptCallback(String transcript) {

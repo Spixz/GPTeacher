@@ -26,19 +26,15 @@ class _PromptUserMessageState extends ConsumerState<PromptUserMessage> {
     super.dispose();
   }
 
-  void submitMessage(String msg) {
-    // widget.submitMessage(msg);
-    messageController.clear();
-    promptFocusNode.requestFocus();
-  }
-
   @override
   Widget build(BuildContext context) {
     ref.listen(homeViewModelProvider, (prev, next) {
-      if (prev!.userInput != next.userInput) {
+      if (prev!.userInput != next.userInput && next.isListeningAudio) {
         messageController.text = next.userInput;
       }
     });
+
+    final state = ref.watch(homeViewModelProvider);
 
     return Container(
       constraints: const BoxConstraints(minHeight: 50, maxHeight: 150),
@@ -49,24 +45,38 @@ class _PromptUserMessageState extends ConsumerState<PromptUserMessage> {
             child: Padding(
               padding: const EdgeInsets.only(left: 10, right: 15),
               child: TextField(
-                  controller: messageController,
-                  focusNode: promptFocusNode,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                      hintText: "Message",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          borderSide:
-                              BorderSide(width: 0, style: BorderStyle.none)),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                      fillColor: Color.fromARGB(255, 109, 109, 109),
-                      filled: true),
-                  onSubmitted: (text) => (text)),
+                controller: messageController,
+                focusNode: promptFocusNode,
+                keyboardType: TextInputType.multiline,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  hintText: "Message",
+                  hintStyle: TextStyle(color: Colors.grey),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                      borderSide:
+                          BorderSide(width: 0, style: BorderStyle.none)),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                  fillColor: Color.fromARGB(255, 109, 109, 109),
+                  filled: true,
+                ),
+                onChanged: (value) {
+                  if (!state.isListeningAudio) {
+                    ref.read(homeViewModelProvider.notifier).userInput = value;
+                  }
+                },
+                onTap: () {
+                  if (state.isListeningAudio) {
+                    print("On tap stop listening");
+                    ref
+                        .read(homeViewModelProvider.notifier)
+                        .changeAudioRecordingState(false);
+                  }
+                },
+              ),
             ),
           ),
           IconButton(
@@ -74,8 +84,11 @@ class _PromptUserMessageState extends ConsumerState<PromptUserMessage> {
                 ref
                     .read(homeViewModelProvider.notifier)
                     .askToGPT(messageController.text);
+                //To clear after audio reading
+                ref.read(homeViewModelProvider.notifier).userInput = "";
+                messageController.clear();
               },
-              icon: const Icon(Icons.camera_alt, color: Colors.grey)),
+              icon: const Icon(Icons.send, color: Colors.grey)),
         ],
       ),
     );
