@@ -1,32 +1,41 @@
 import 'dart:io';
 
 import 'package:cheetah_flutter/cheetah_error.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpteacher/cheetah_manager.dart';
+import 'package:gpteacher/features/home/view_model/home.viewmodel.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-
 
 class STT {
   final String accessKey =
       'iucMFDyWvdaKiUzqtipwoQ4jiNSweUIzlUAAxhua49hi/iZHUd+Axw=='; // AccessKey obtained from Picovoice Console (https://console.picovoice.ai/)
   late CheetahManager
       _cheetahManager; //utiliser une facotry qui permettre de l'init ici avec des callbacks
-      SpeechToText speechToText = SpeechToText();
+  SpeechToText speechToText = SpeechToText();
+  late String processor;
 
+  HomeViewModel homeView;
 
-
-  STT(Function(String) transcriptCallback,
-      Function(CheetahException) errorCallback) {
-    initCheetah(transcriptCallback, errorCallback);
-    // speechToText.initialize();
-    
+  STT({required this.homeView}) {
+    processor = (kIsWeb) ? "native" : "chetah";
+    if (processor == "chetah") {
+      initCheetah(homeView.voiceTranscriptCallback);
+    } else {
+      speechToText.initialize(
+        finalTimeout: const Duration(seconds: 3),
+        onStatus: (status) {
+          if (status == "notListening") {
+            print("Fin de transcription");
+            homeView.changeAudioRecordingState(false);
+          }
+        },
+      );
+    }
   }
 
-  STT.native(Function(SpeechResultListener) transcriptCallback) {
-
-  }
-
-  Future<void> initCheetah(Function(String) transcriptCallback,
-      Function(CheetahException) errorCallback) async {
+  Future<void> initCheetah(Function(String) transcriptCallback) async {
     String platform = Platform.isAndroid
         ? "android"
         : Platform.isIOS
@@ -57,11 +66,35 @@ class STT {
   }
 
   Future<void> startProcess() async {
-await speechToText.listen(onResult: );
-    await _cheetahManager.startProcess();
+    if (processor == "chetah") {
+      await _cheetahManager.startProcess();
+    } else {
+      await speechToText.listen(
+          localeId: "en_US",
+          onResult: (SpeechRecognitionResult result) {
+            List<String> res = [];
+            for (var element in result.alternates) {
+              res.add(element.recognizedWords);
+            }
+            homeView.voiceTranscriptCallback(res.join(" "));
+          });
+    }
   }
 
   Future<void> stopProcess() async {
-    await _cheetahManager.stopProcess();
+    if (processor == "chetah") {
+      await _cheetahManager.stopProcess();
+    } else {
+      await speechToText.stop();
+    }
+  }
+
+  void errorCallback(CheetahException error) {
+    print(error);
   }
 }
+
+final sttProvider = Provider<STT>((ref) {
+  final viewModel = ref.watch(homeViewModelProvider.notifier);
+  return STT(homeView: viewModel);
+});

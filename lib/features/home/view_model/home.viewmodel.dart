@@ -1,18 +1,19 @@
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:cheetah_flutter/cheetah_error.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpteacher/class/STT.class.dart';
 import 'package:gpteacher/class/TTS.class.dart';
 import 'package:gpteacher/class/conversations/ConversationManager.class.dart';
 import 'package:gpteacher/enums/LanguageLevel.dart';
-import 'package:gpteacher/features/get_int_injector.dart';
 import 'package:gpteacher/features/home/view_model/home.state.dart';
 
 class HomeViewModel extends StateNotifier<HomeState> {
   late ConversationManager conversationManager;
   //TTS TTS({required HomeBiewModel homeView}})
   late TTS tts;
+  late STT stt;
 
   final openAI = OpenAI.instance.build(
       token: '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',
@@ -31,9 +32,8 @@ class HomeViewModel extends StateNotifier<HomeState> {
         )) {
     conversationManager =
         ConversationManager(subjectName: state.selectedSubject);
-    locator.registerSingleton<STT>(
-        STT(voiceTranscriptCallback, voiceTranscriptErrorCallback));
-        tts = TTS(homeView: this);
+    stt = STT(homeView: this);
+    tts = TTS(homeView: this);
   }
 
   set userInput(String value) {
@@ -87,8 +87,8 @@ class HomeViewModel extends StateNotifier<HomeState> {
       if (it.choices.last.message?.content != null) {
         String newEntry = it.choices.last.message!.content;
         state = state.copyWith(agentOutput: state.agentOutput + newEntry);
+        print(state.agentOutput);
         agentOutputBuff += newEntry;
-        print("$newEntry tts: ${state.ttsEnabled}");
         if (newEntry.contains(RegExp(r'[\.|\?|\!|\;]'))) {
           if (state.ttsEnabled) {
             //desactivativation ici
@@ -101,6 +101,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
       // debugPrint(it.choices.last.message?.content);
     }, onDone: () {
       tts.textInAdding = false;
+      state = state.copyWith(userInput: "");
       print("Réponse final de l'agent");
       print(state.agentOutput);
       conversationManager.summarize(userInput, prevAgOut);
@@ -116,8 +117,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
       return;
     }
     try {
-      //  stt.startProcess();
-      locator.get<STT>().startProcess();
+      stt.startProcess();
       state = state.copyWith(userInput: "");
       voiceInProcess = true;
     } on CheetahException catch (ex) {
@@ -130,7 +130,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
       return;
     }
     try {
-      await locator.get<STT>().stopProcess();
+      stt.stopProcess();
       voiceInProcess = false;
     } on CheetahException catch (ex) {
       print("Failed to start audio capture: ${ex.message}");
@@ -144,20 +144,16 @@ class HomeViewModel extends StateNotifier<HomeState> {
   void voiceTranscriptCallback(String transcript) {
     // bool shouldScroll = scrollControllerAgentOutput.position.pixels ==
     //     scrollControllerAgentOutput.position.maxScrollExtent;
-    state = state.copyWith(userInput: state.userInput + transcript);
+    if (kIsWeb) {
+      state = state.copyWith(userInput: transcript);
+    } else {
+      state = state.copyWith(userInput: state.userInput + transcript);
+    }
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   if (shouldScroll && !scrollControllerAgentOutput.position.atEdge) {
     //     scrollControllerAgentOutput
     //         .jumpTo(scrollControllerAgentOutput.position.maxScrollExtent);
     //   }
-    // });
-  }
-
-  void voiceTranscriptErrorCallback(CheetahException error) {
-    print("Erreur lors de l'init de cheetah: ${error.message}");
-    // setState(() {
-    //   isError = true;
-    //   errorMessage = error.message!;
     // });
   }
 }
