@@ -1,5 +1,5 @@
-import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:cheetah_flutter/cheetah_error.dart';
+import 'package:dart_openai/openai.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,17 +7,18 @@ import 'package:gpteacher/class/STT.class.dart';
 import 'package:gpteacher/class/TTS.class.dart';
 import 'package:gpteacher/class/conversations/ConversationManager.class.dart';
 import 'package:gpteacher/enums/LanguageLevel.dart';
+import 'package:gpteacher/features/get_int_injector.dart';
 import 'package:gpteacher/features/home/view_model/home.state.dart';
+import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 
 class HomeViewModel extends StateNotifier<HomeState> {
   late ConversationManager conversationManager;
   //TTS TTS({required HomeBiewModel homeView}})
   late TTS tts;
-  late STT stt;
 
-  final openAI = OpenAI.instance.build(
-      token: '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',
-      baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 30)));
+  // final openAI = OpenAI.instance.build(
+  //     token: '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',
+  //     baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 30)));
   final ScrollController scrollControllerAgentOutput = ScrollController();
   bool voiceInProcess = false;
   String agentOutputBuff = "";
@@ -27,13 +28,17 @@ class HomeViewModel extends StateNotifier<HomeState> {
       : super(HomeState(
           selectedLanguageLevel: LanguageLevel.beginner,
           selectedSubject: 'Global',
-          ttsEnabled: false,
+          ttsEnabled: true,
           isListeningAudio: false,
         )) {
     conversationManager =
         ConversationManager(subjectName: state.selectedSubject);
-    stt = STT(homeView: this);
+    locator.registerSingleton<STT>(STT(
+        transcriptCallback: voiceTranscriptCallback,
+        changeAudioRecordingState: changeAudioRecordingState));
     tts = TTS(homeView: this);
+    // askToGPT(
+    // "Say (Hello my name is Jack, I'am here to help you to practice your english. What would you like to talk about?)");
   }
 
   set userInput(String value) {
@@ -64,7 +69,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
     }
   }
 
-  void askToGPT(String userInput) {
+  void askToGPT2(String userInput) {
     String prevAgOut = state.agentOutput;
     final req = conversationManager.generator(
         userInput: userInput,
@@ -72,39 +77,38 @@ class HomeViewModel extends StateNotifier<HomeState> {
             state.agentOutput, //nik sa mere faire une sliding windows.
         level: state.selectedLanguageLevel,
         data: <String, dynamic>{'userinfos': userInfos});
-    print("\n\nRequete envoyé à l'agent");
-    print(req);
-    final request = ChatCompleteText(
-        messages:
-            // [Map.of({"role": "user", "content": userInput})]
-            req,
-        maxToken: 200,
-        model: ChatModel.gptTurbo);
+
+    Stream<OpenAIStreamChatCompletionModel> chatStream = OpenAI.instance.chat
+        .createStream(model: "gpt-3.5-turbo", messages: req, maxTokens: 200);
 
     tts.textInAdding = true;
     state = state.copyWith(agentOutput: "");
-    openAI.onChatCompletionSSE(request: request).listen((it) async {
-      if (it.choices.last.message?.content != null) {
-        String newEntry = it.choices.last.message!.content;
-        state = state.copyWith(agentOutput: state.agentOutput + newEntry);
-        print(state.agentOutput);
-        agentOutputBuff += newEntry;
-        if (newEntry.contains(RegExp(r'[\.|\?|\!|\;]'))) {
-          if (state.ttsEnabled) {
-            //desactivativation ici
-            print("Ajout de la phrase à la queue de lecture");
-            tts.addNewSentenceToQueue(agentOutputBuff);
-          }
-          agentOutputBuff = "";
-        }
+    chatStream.listen((chatStreamEvent) {
+      print(chatStreamEvent.choices.last.delta.content);
+      if (chatStreamEvent.choices.last.delta.content == null) {
+        return;
       }
-      // debugPrint(it.choices.last.message?.content);
+      String newEntry = chatStreamEvent.choices.last.delta.content!;
+      state = state.copyWith(agentOutput: state.agentOutput + newEntry);
+      agentOutputBuff += newEntry;
+      if (newEntry.contains(RegExp(r'[\.|\?|\!|\;]'))) {
+        if (state.ttsEnabled) {
+          tts.addNewSentenceToQueue(agentOutputBuff);
+        }
+        agentOutputBuff = "";
+      }
     }, onDone: () {
       tts.textInAdding = false;
-      state = state.copyWith(userInput: "");
       print("Réponse final de l'agent");
       print(state.agentOutput);
+      locator.get<Mixpanel>().track("gptAnswer",
+          properties: {'1-user': userInput, "2-gpt": state.agentOutput});
+      state = state.copyWith(userInput: "");
       conversationManager.summarize(userInput, prevAgOut);
+    }, onError: (err, st) {
+      state = state.copyWith(
+          agentOutput:
+              "⚠️ sorry, i encountered a technical problem, can you repeat please.");
     });
   }
 
@@ -117,7 +121,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
       return;
     }
     try {
-      stt.startProcess();
+      locator.get<STT>().startProcess();
       state = state.copyWith(userInput: "");
       voiceInProcess = true;
     } on CheetahException catch (ex) {
@@ -130,7 +134,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
       return;
     }
     try {
-      stt.stopProcess();
+      await locator.get<STT>().stopProcess();
       voiceInProcess = false;
     } on CheetahException catch (ex) {
       print("Failed to start audio capture: ${ex.message}");

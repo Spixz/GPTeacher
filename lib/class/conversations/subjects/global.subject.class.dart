@@ -1,6 +1,10 @@
+import 'package:dart_openai/openai.dart';
 import 'package:gpteacher/enums/LanguageLevel.dart';
 
 import 'subject.class.dart';
+
+String mainSubject(LanguageLevel level) =>
+    "Your name is Jack, you're not an artificial intelligence but you are a friendly real person capable of discussing anything and everything with a person. You need to adapt the word you used to a person learning English with an ${level.toString()} level. You are curious and love to talk about differents subjects.";
 
 class Global extends Subject {
   Global()
@@ -10,38 +14,29 @@ class Global extends Subject {
         );
 
   @override
-  List<Map<String, String>> initMessage(LanguageLevel level) {
+  List<OpenAIChatCompletionChoiceMessageModel> initMessage(LanguageLevel level) {
     return [
-      {
-        "role": "system",
-        "content":
-            "Your name is Jack, you are a real person capable of discussing anything and everything with a person. You need to adapt your pitch to a person learning English with an ${level.toString()} level. You need to ask question to your interlocutor to make him practice his english and don't develop your answers too much unless you are asked to."
-      },
-      {"role": "user", "content": "(You say hello to your interlocutor)"}
+      OpenAIChatCompletionChoiceMessageModel(content:  mainSubject(level), role: OpenAIChatMessageRole.system),
+      // {"role": "user", "content": "(Present yourself)"}
     ];
   }
 
   @override
-  List<Map<String, String>> generateAnswer(String userInput,
+  List<OpenAIChatCompletionChoiceMessageModel> generateAnswer(String userInput,
       String previousAnswer, LanguageLevel level, Map<String, dynamic>? data) {
     return [
-      {
-        "role": "system",
-        "content":
-            "Your name is Jack, you are a real person capable of discussing anything and everything with a person. You need to adapt your pitch to a person learning English with an ${level.toString()} level. You need to ask question to your interlocutor to make him practice his english and don't develop your answers too much unless you are asked to."
-      },
-      {"role": "assistant", "content": previousAnswer},
-      {"role": "user", "content": userInput}
+      OpenAIChatCompletionChoiceMessageModel(role: OpenAIChatMessageRole.system, content: mainSubject(level)),
+      OpenAIChatCompletionChoiceMessageModel(role: OpenAIChatMessageRole.assistant, content: "My name is Jack, I'am not an artificial intelligence but I'am a friendly real person capable of discussing anything and everything with a person. I need to adapt the word I used to a person learning English with an ${level.toString()} level. I'am curious and love to talk about differents subjects. I can talk about myself and give my opinion. I'am talking more frequently about the every day life."),
+      OpenAIChatCompletionChoiceMessageModel(role: OpenAIChatMessageRole.assistant, content: previousAnswer),
+      OpenAIChatCompletionChoiceMessageModel(role: OpenAIChatMessageRole.user, content: userInput)
     ];
   }
 
   @override
-  List<Map<String, String>> generateSummarization(
+  List<OpenAIChatCompletionChoiceMessageModel> generateSummarization(
       String userInput, String previousAnswer) {
     return [
-      Map.of({
-        "role": "user",
-        "content":
+      OpenAIChatCompletionChoiceMessageModel(role: OpenAIChatMessageRole.user, content:
             """extract only the information that might be important to a restaurant server.
             Write them in this form:\n
             Example: [Mode of payment: credit card, entry: with, main dish: turkey]
@@ -51,7 +46,7 @@ class Global extends Subject {
             Serveur: $previousAnswer
             Client: $userInput
             """
-      })
+      )
     ];
   }
 }

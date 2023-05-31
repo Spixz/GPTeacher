@@ -31,6 +31,7 @@ class TTS {
         isSpeaking = true;
         speak(textToReadQueue.last);
       } else if (textInAdding == false && textToReadQueue.isEmpty) {
+        print('Rcorder On');
         homeView.changeAudioRecordingState(true);
       }
     });
@@ -41,6 +42,7 @@ class TTS {
   void addNewSentenceToQueue(String newSentence) {
     textToReadQueue.addFirst(newSentence);
     if (isSpeaking == false && textToReadQueue.length == 1) {
+      print("Speak");
       isSpeaking = true;
       speak(textToReadQueue.last);
     }

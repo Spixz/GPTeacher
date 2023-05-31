@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:cheetah_flutter/cheetah_error.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpteacher/cheetah_manager.dart';
-import 'package:gpteacher/features/home/view_model/home.viewmodel.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -14,21 +12,22 @@ class STT {
   late CheetahManager
       _cheetahManager; //utiliser une facotry qui permettre de l'init ici avec des callbacks
   SpeechToText speechToText = SpeechToText();
+  Function(String) transcriptCallback;
   late String processor;
 
-  HomeViewModel homeView;
-
-  STT({required this.homeView}) {
+  STT(
+      {required this.transcriptCallback,
+      required void Function(bool) changeAudioRecordingState}) {
     processor = (kIsWeb) ? "native" : "chetah";
     if (processor == "chetah") {
-      initCheetah(homeView.voiceTranscriptCallback);
+      initCheetah(transcriptCallback);
     } else {
       speechToText.initialize(
-        finalTimeout: const Duration(seconds: 3),
+        finalTimeout: const Duration(seconds: 30),
         onStatus: (status) {
           if (status == "notListening") {
             print("Fin de transcription");
-            homeView.changeAudioRecordingState(false);
+            // changeAudioRecordingState(true);
           }
         },
       );
@@ -76,7 +75,7 @@ class STT {
             for (var element in result.alternates) {
               res.add(element.recognizedWords);
             }
-            homeView.voiceTranscriptCallback(res.join(" "));
+            transcriptCallback(res.join(" "));
           });
     }
   }
@@ -93,8 +92,3 @@ class STT {
     print(error);
   }
 }
-
-final sttProvider = Provider<STT>((ref) {
-  final viewModel = ref.watch(homeViewModelProvider.notifier);
-  return STT(homeView: viewModel);
-});

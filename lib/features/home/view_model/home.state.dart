@@ -22,7 +22,15 @@ class HomeState {
     required this.selectedSubject,
     required this.ttsEnabled,
     required this.isListeningAudio,
-    this.agentOutput = '',
+    this.agentOutput =
+        "Hi, my name is Jack,\nI'm a virtual assistant. You can chat with me to"
+            " practice your English. I like to talk about everything.\n\n"
+            "If we've never spoken before, here's some tips :\n\n"
+            "- You can activate voice recognition by pressing the little microphone. "
+            "When you've finished speaking, press enter to send me your answer.\n"
+            "If it didn't work after speaking, just click "
+            "on it again ;)\n\n"
+            "So let's talk !",
     this.userInput = '',
   });
 

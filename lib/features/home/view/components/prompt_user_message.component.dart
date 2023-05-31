@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpteacher/features/home/view_model/home.viewmodel.dart';
 
@@ -18,20 +19,39 @@ class _PromptUserMessageState extends ConsumerState<PromptUserMessage> {
     super.initState();
     messageController = TextEditingController();
     promptFocusNode = FocusNode();
+    ServicesBinding.instance.keyboard.addHandler(_onKey);
   }
 
   @override
   void dispose() {
     messageController.dispose();
+    ServicesBinding.instance.keyboard.removeHandler(_onKey);
+
     super.dispose();
+  }
+
+  bool _onKey(KeyEvent event) {
+    final key = event.logicalKey.keyLabel;
+    if (event is KeyDownEvent && key == LogicalKeyboardKey.enter.keyLabel) {
+      askToGpt();
+    }
+    return false;
+  }
+
+  void askToGpt() {
+    ref.read(homeViewModelProvider.notifier).askToGPT2(messageController.text);
+    ref.read(homeViewModelProvider.notifier).userInput = "";
+    messageController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     ref.listen(homeViewModelProvider, (prev, next) {
-      if (prev!.userInput != next.userInput && next.isListeningAudio) {
-        messageController.text = next.userInput;
-      }
+      ////prev!.userInput != next.userInput /*&& next.isListeningAudio*/) {
+      // print("Changement du controlelr a patir du state");
+      // print('Valeur du controller : ${messageController.text}');
+      // print('Valeur du state : ${next.userInput}');
+      messageController.text = next.userInput;
     });
 
     final state = ref.watch(homeViewModelProvider);
@@ -45,6 +65,7 @@ class _PromptUserMessageState extends ConsumerState<PromptUserMessage> {
             child: Padding(
               padding: const EdgeInsets.only(left: 10, right: 15),
               child: TextField(
+                // textInputAction: TextInputAction.go,
                 controller: messageController,
                 focusNode: promptFocusNode,
                 keyboardType: TextInputType.multiline,
@@ -65,8 +86,15 @@ class _PromptUserMessageState extends ConsumerState<PromptUserMessage> {
                 ),
                 onChanged: (value) {
                   if (!state.isListeningAudio) {
+                    print("Dans le on changed");
+                    print('Valeur du para : $value');
                     ref.read(homeViewModelProvider.notifier).userInput = value;
+                    messageController.selection = TextSelection.fromPosition(
+                        TextPosition(offset: messageController.text.length));
                   }
+                },
+                onSubmitted: (value) async {
+                  askToGpt();
                 },
                 onTap: () {
                   if (state.isListeningAudio) {
@@ -80,14 +108,7 @@ class _PromptUserMessageState extends ConsumerState<PromptUserMessage> {
             ),
           ),
           IconButton(
-              onPressed: () {
-                ref
-                    .read(homeViewModelProvider.notifier)
-                    .askToGPT(messageController.text);
-                //To clear after audio reading
-                ref.read(homeViewModelProvider.notifier).userInput = "";
-                messageController.clear();
-              },
+              onPressed: askToGpt,
               icon: const Icon(Icons.send, color: Colors.grey)),
         ],
       ),

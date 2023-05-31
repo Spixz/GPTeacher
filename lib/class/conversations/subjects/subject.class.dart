@@ -1,3 +1,4 @@
+import 'package:dart_openai/openai.dart';
 import 'package:gpteacher/class/conversations/subjects/global.subject.class.dart';
 import 'package:gpteacher/enums/LanguageLevel.dart';
 
@@ -8,10 +9,10 @@ abstract class Subject {
   bool summarizeInfos;
   Subject({required this.name, required this.summarizeInfos});
 
-  List<Map<String, String>> initMessage(LanguageLevel level);
-  List<Map<String, String>> generateAnswer(String userInput,
+  List<OpenAIChatCompletionChoiceMessageModel> initMessage(LanguageLevel level);
+  List<OpenAIChatCompletionChoiceMessageModel> generateAnswer(String userInput,
       String previousAnswer, LanguageLevel level, Map<String, dynamic>? data);
-  List<Map<String, String>> generateSummarization(
+  List<OpenAIChatCompletionChoiceMessageModel> generateSummarization(
       String userInput, String previousAnswer);
 }
 
