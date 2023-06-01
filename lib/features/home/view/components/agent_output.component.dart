@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:gpteacher/constants/colors.dart';
 import 'package:gpteacher/features/home/view_model/home.viewmodel.dart';
 
 class AgentOutput extends ConsumerWidget {
@@ -13,7 +15,6 @@ class AgentOutput extends ConsumerWidget {
         flex: 6,
         child: Container(
             alignment: Alignment.topCenter,
-            color: const Color(0xff25187e),
             margin: const EdgeInsets.all(10),
             child: SingleChildScrollView(
                 controller: ref
@@ -24,10 +25,12 @@ class AgentOutput extends ConsumerWidget {
                 physics: const RangeMaintainingScrollPhysics(),
                 child: Align(
                     alignment: Alignment.topLeft,
-                    child: Text(
-                      ref.watch(homeViewModelProvider).agentOutput,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(color: Colors.white, fontSize: 20),
-                    )))));
+                    child: Text(ref.watch(homeViewModelProvider).agentOutput,
+                        textAlign: TextAlign.left,
+                        style: GoogleFonts.brawler(
+                            textStyle: const TextStyle(
+                          fontSize: 18,
+                          color: oldTextColor,
+                        )))))));
   }
 }

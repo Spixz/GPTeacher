@@ -1,4 +1,6 @@
 // import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+import 'dart:ui';
+
 import 'package:dart_openai/openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +12,11 @@ class TestGPTView extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _TestGPTViewState();
 }
 
+const testString =
+    "Notion is a freemium productivity and note-taking web application developed by Notion Labs Inc. It offers organizational tools including task management, project tracking, to-do lists, bookmarking, and more. Additional offline features are offered by desktop and mobile applications available for Windows, macOS, Android, and iOS. Users can create custom templates, embed videos and web content, and collaborate with others in real-time.";
+
 class _TestGPTViewState extends ConsumerState<TestGPTView> {
   String gptOutput = "";
-
 
   void askToGPT3() {
     Stream<OpenAIStreamChatCompletionModel> chatStream =
@@ -47,15 +51,56 @@ class _TestGPTViewState extends ConsumerState<TestGPTView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextButton(
-            onPressed: () {
-              askToGPT3();
-            },
-            child: const Text("Ask to GPT2")),
-        Text(gptOutput),
-      ],
-    );
+    var size = MediaQuery.of(context).size;
+
+    return Scaffold(
+        backgroundColor: const Color(0xFF3C4B60),
+        body: SafeArea(
+          child: SizedBox(
+            height: size.height,
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      width: 200,
+                      height: 200,
+                      color: Colors.blue,
+                    ),
+                    Opacity(
+                      opacity: 0.5,
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 0.0, sigmaY: 0.0),
+                        child: Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.5),
+                                ],
+                              ),
+                            ),
+                            child: const Text(
+                              testString,
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      ),
+                    ),
+                  ],
+                ),
+                // TextButton(
+                //     onPressed: () {
+                //       askToGPT3();
+                //     },
+                //     child: const Text("Ask to GPT2")),
+                // Text(gptOutput),
+              ],
+            ),
+          ),
+        ));
   }
 }

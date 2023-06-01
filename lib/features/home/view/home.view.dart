@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gpteacher/constants/colors.dart';
 import 'package:gpteacher/features/get_int_injector.dart';
 import 'package:gpteacher/features/home/view/components/agent_output.component.dart';
-import 'package:gpteacher/features/home/view/components/language_level_selector.component.dart';
+import 'package:gpteacher/features/home/view/components/conversation_parameters.component.dart';
+import 'package:gpteacher/features/home/view/components/header.component.dart';
 import 'package:gpteacher/features/home/view/components/prompt_user_message.component.dart';
-import 'package:gpteacher/features/home/view/components/subject_selector.component.dart';
 import 'package:gpteacher/features/home/view/components/voice_tts_controls.component.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 
@@ -29,19 +30,28 @@ class _HomeViewState extends ConsumerState<HomeView> {
     var size = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: oldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: SizedBox(
             height: size.height,
             child: Column(
-              children: const [
-                LanguageLevelSelector(),
-                SizedBox(height: 20),
-                SubjectSelector(),
-                SizedBox(height: 10),
-                VoiceTTSControls(),
-                AgentOutput(),
-                PromptUserMessage()
+              children: [
+                const SizedBox(height: 30),
+                const Header(),
+                const SizedBox(height: 30),
+                const ConversationParameters(),
+                const SizedBox(height: 30),
+                // VoiceTTSControls(),
+                const AgentOutput(),
+                Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: const [
+                      PromptUserMessage(),
+                      Positioned(
+                          top: -28, child: VoiceTTSControls()),
+                    ])
               ],
             ),
           ),

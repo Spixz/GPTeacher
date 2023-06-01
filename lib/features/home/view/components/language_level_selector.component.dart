@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gpteacher/constants/colors.dart';
 import 'package:gpteacher/features/home/view_model/home.viewmodel.dart';
 
 class LanguageLevelSelector extends ConsumerWidget {
@@ -11,12 +12,15 @@ class LanguageLevelSelector extends ConsumerWidget {
 
     return DropdownButton<String>(
       value: ref.watch(homeViewModelProvider).selectedLanguageLevel.toString(),
-      icon: const Icon(Icons.arrow_downward),
+      icon: const Icon(
+        Icons.insights,
+        color: oldLineTextColor,
+      ),
       elevation: 16,
-      style: const TextStyle(color: Colors.deepPurple),
+      style: const TextStyle(color: oldTextColor),
       underline: Container(
         height: 2,
-        color: Colors.deepPurpleAccent,
+        color: oldLineTextColor,
       ),
       onChanged: (String? value) {
         if (value != null) {

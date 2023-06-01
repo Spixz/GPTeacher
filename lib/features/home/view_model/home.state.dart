@@ -23,7 +23,7 @@ class HomeState {
     required this.ttsEnabled,
     required this.isListeningAudio,
     this.agentOutput =
-        "Hi, my name is Jack,\nI'm a virtual assistant. You can chat with me to"
+        "Hi, my name is Jack,\n\nI'm a virtual assistant. You can chat with me to"
             " practice your English. I like to talk about everything.\n\n"
             "If we've never spoken before, here's some tips :\n\n"
             "- You can activate voice recognition by pressing the little microphone. "

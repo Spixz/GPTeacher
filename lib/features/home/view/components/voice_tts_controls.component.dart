@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gpteacher/constants/colors.dart';
 import 'package:gpteacher/features/home/view_model/home.viewmodel.dart';
-import 'package:gpteacher/localization/string_hardcoded.dart';
 
 class VoiceTTSControls extends ConsumerWidget {
   const VoiceTTSControls({super.key});
@@ -11,48 +11,58 @@ class VoiceTTSControls extends ConsumerWidget {
     final state = ref.watch(homeViewModelProvider);
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(
-          icon: (state.ttsEnabled)
-              ? const Icon(
-                  Icons.volume_up,
-                  size: 40,
-                )
-              : const Icon(
-                  Icons.volume_off,
-                  size: 40,
-                ),
-          tooltip: (state.ttsEnabled)
-              ? 'Disable voice synthesis'.hardcoded
-              : 'Enable voice synthesis'.hardcoded,
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(10),
+            backgroundColor: oldButtonColor, // <-- Button color
+            // foregroundColor: Colors.red, // <-- Splash color
+          ),
           onPressed: () {
             ref
                 .read(homeViewModelProvider.notifier)
                 .changeTTSState(!state.ttsEnabled);
           },
+          child: (state.ttsEnabled)
+              ? const Icon(
+                  Icons.volume_up,
+                  size: 30,
+                  color: oldButtonInternal,
+                )
+              : const Icon(
+                  Icons.volume_off,
+                  size: 30,
+                  color: oldButtonInternal,
+                ),
         ),
-        const SizedBox(width: 10),
-        IconButton(
-          icon: (state.isListeningAudio)
+        const SizedBox(width: 180),
+        // const SizedBox(width: 20),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(10),
+            backgroundColor: oldButtonColor, // <-- Button color
+            // foregroundColor: Colors.red, // <-- Splash color
+          ),
+          child: (state.isListeningAudio)
               ? const Icon(
                   Icons.keyboard_voice,
-                  size: 40,
+                  size: 30,
+                  color: oldButtonInternal,
                 )
               : const Icon(
                   Icons.mic_off,
-                  size: 40,
+                  size: 30,
+                  color: oldButtonInternal,
                 ),
-          tooltip: (state.isListeningAudio)
-              ? 'Disable voice recognition'.hardcoded
-              : 'Enable voice recognition'.hardcoded,
           onPressed: () {
             ref
                 .read(homeViewModelProvider.notifier)
                 .changeAudioRecordingState(!state.isListeningAudio);
           },
         ),
-        const SizedBox(width: 20),
       ],
     );
   }

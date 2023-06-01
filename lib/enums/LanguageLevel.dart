@@ -1,7 +1,7 @@
 enum LanguageLevel {
-  beginner('beginner'),
-  intermediate('intermediate'),
-  expert('expert');
+  beginner('Beginner'),
+  intermediate('Intermediate'),
+  expert('Expert');
 
   const LanguageLevel(this.value);
   final String value;
