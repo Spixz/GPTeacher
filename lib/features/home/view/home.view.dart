@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpteacher/constants/colors.dart';
 import 'package:gpteacher/features/get_int_injector.dart';
 import 'package:gpteacher/features/home/view/components/agent_output.component.dart';
+import 'package:gpteacher/features/home/view/components/bottom.component.dart';
 import 'package:gpteacher/features/home/view/components/conversation_parameters.component.dart';
 import 'package:gpteacher/features/home/view/components/header.component.dart';
 import 'package:gpteacher/features/home/view/components/prompt_user_message.component.dart';
@@ -33,36 +34,18 @@ class _HomeViewState extends ConsumerState<HomeView> {
       backgroundColor: oldBackgroundColor,
       body: SafeArea(
         child: Center(
-          child: SizedBox(
+          child: Container(
             height: size.height,
+            constraints: const BoxConstraints(maxWidth: 800),
             child: Column(
-              children: [
-                const SizedBox(height: 30),
-                const Header(),
-                const SizedBox(height: 30),
-                const ConversationParameters(),
-                const SizedBox(height: 30),
-                // VoiceTTSControls(),
-                const AgentOutput(),
-                Stack(
-                    clipBehavior: Clip.none,
-                    alignment: Alignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          Container(
-                            height: 18,
-                          ),
-                          const PromptUserMessage(),
-                        ],
-                      ),
-                      const Positioned(top: 0, child: VoiceTTSControls()),
-
-                      // Transform.translate(
-                      //   offset: const Offset(0, -80),
-                      //   child: const VoiceTTSControls(),
-                      // )
-                    ])
+              children: const [
+                SizedBox(height: 30),
+                Header(),
+                SizedBox(height: 30),
+                ConversationParameters(),
+                SizedBox(height: 30),
+                AgentOutput(),
+                Bottom()
               ],
             ),
           ),

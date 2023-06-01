@@ -16,9 +16,6 @@ class HomeViewModel extends StateNotifier<HomeState> {
   //TTS TTS({required HomeBiewModel homeView}})
   late TTS tts;
 
-  // final openAI = OpenAI.instance.build(
-  //     token: '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',
-  //     baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 30)));
   final ScrollController scrollControllerAgentOutput = ScrollController();
   bool voiceInProcess = false;
   String agentOutputBuff = "";

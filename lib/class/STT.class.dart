@@ -8,7 +8,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 class STT {
   final String accessKey =
-      'iucMFDyWvdaKiUzqtipwoQ4jiNSweUIzlUAAxhua49hi/iZHUd+Axw=='; // AccessKey obtained from Picovoice Console (https://console.picovoice.ai/)
+      'xxx'; // AccessKey obtained from Picovoice Console (https://console.picovoice.ai/)
   late CheetahManager
       _cheetahManager; //utiliser une facotry qui permettre de l'init ici avec des callbacks
   SpeechToText speechToText = SpeechToText();

@@ -73,7 +73,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final String accessKey =
-      'iucMFDyWvdaKiUzqtipwoQ4jiNSweUIzlUAAxhua49hi/iZHUd+Axw=='; // AccessKey obtained from Picovoice Console (https://console.picovoice.ai/)
+      'xxx'; // AccessKey obtained from Picovoice Console (https://console.picovoice.ai/)
   final openAI = OpenAI.instance.build(
       token: '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',
       baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 5)));
