@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpteacher/constants/colors.dart';
+import 'package:gpteacher/constants/secret_keys.dart';
 import 'package:gpteacher/features/get_int_injector.dart';
 import 'package:gpteacher/features/home/view/components/agent_output.component.dart';
 import 'package:gpteacher/features/home/view/components/bottom.component.dart';
 import 'package:gpteacher/features/home/view/components/conversation_parameters.component.dart';
 import 'package:gpteacher/features/home/view/components/header.component.dart';
-import 'package:gpteacher/features/home/view/components/prompt_user_message.component.dart';
-import 'package:gpteacher/features/home/view/components/voice_tts_controls.component.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 
 class HomeView extends ConsumerStatefulWidget {
@@ -39,6 +38,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             constraints: const BoxConstraints(maxWidth: 800),
             child: Column(
               children: const [
+                // Text(decoder(OPENAI_KEY)),
                 SizedBox(height: 30),
                 Header(),
                 SizedBox(height: 30),
