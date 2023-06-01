@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:cheetah_flutter/cheetah_error.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gpteacher/cheetah_manager.dart';
+import 'package:gpteacher/constants/secret_keys.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 class STT {
   final String accessKey =
-      'xxx'; // AccessKey obtained from Picovoice Console (https://console.picovoice.ai/)
+      PINECONE_KEY; // AccessKey obtained from Picovoice Console (https://console.picovoice.ai/)
   late CheetahManager
       _cheetahManager; //utiliser une facotry qui permettre de l'init ici avec des callbacks
   SpeechToText speechToText = SpeechToText();

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:dart_openai/openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gpteacher/constants/secret_keys.dart';
 
 class TestGPTView extends ConsumerStatefulWidget {
   const TestGPTView({super.key});
@@ -46,7 +47,7 @@ class _TestGPTViewState extends ConsumerState<TestGPTView> {
     setState(() {
       gptOutput = "Hello";
     });
-    OpenAI.apiKey = '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';
+    OpenAI.apiKey = OPENAI_KEY;
   }
 
   @override

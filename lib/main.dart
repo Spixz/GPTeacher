@@ -1,5 +1,6 @@
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dart_openai/openai.dart';
+import 'package:gpteacher/constants/secret_keys.dart';
 import 'package:gpteacher/features/app.dart';
 import 'package:gpteacher/features/get_int_injector.dart';
 import 'package:gpteacher/localization/string_hardcoded.dart';
@@ -22,7 +23,7 @@ void main() async {
   usePathUrlStrategy();
   registerErrorHandlers();
   setupLocator();
-  OpenAI.apiKey = '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';
+  OpenAI.apiKey = OPENAI_KEY;
 
   runApp(const ProviderScope(child: MyApp()));
 }
