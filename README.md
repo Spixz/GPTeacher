@@ -1,16 +1,16 @@
-# gpteacher
+<h1 align="center">
+    GPTeacher
+</h1>
 
-A new Flutter project.
+<p align="center">
+    <b>
+        <a href="https://gpteacher.netlify.app/">Web demo</a><br>
+    </b>
+</p>
 
-## Getting Started
+<p align="center">App that lets you converse orally with an agent on a variety of topics to practice your english.</p><br>
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<p align="center">
+  <img src="https://github.com/Spixz/GPTeacher/assets/43412722/62a459d2-724b-455f-a795-3f1f8d3d624d" alt="app screen" style="max-height: 600px;"/>
+</p>
