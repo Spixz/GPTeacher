@@ -47,10 +47,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 Stack(
                     clipBehavior: Clip.none,
                     alignment: Alignment.center,
-                    children: const [
-                      PromptUserMessage(),
-                      Positioned(
-                          top: -28, child: VoiceTTSControls()),
+                    children: [
+                      Column(
+                        children: [
+                          Container(
+                            height: 18,
+                          ),
+                          const PromptUserMessage(),
+                        ],
+                      ),
+                      const Positioned(top: 0, child: VoiceTTSControls()),
+
+                      // Transform.translate(
+                      //   offset: const Offset(0, -80),
+                      //   child: const VoiceTTSControls(),
+                      // )
                     ])
               ],
             ),

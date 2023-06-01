@@ -77,7 +77,7 @@ class _PromptUserMessageState extends ConsumerState<PromptUserMessage> {
           // bottomRight: Radius.circular(20), // Si vous souhaitez arrondir également le coin inférieur droit
         ),
       ),
-      padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 40),
       child: Row(
         children: [
           Expanded(
