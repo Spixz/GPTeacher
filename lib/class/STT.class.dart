@@ -76,7 +76,11 @@ class STT {
             for (var element in result.alternates) {
               res.add(element.recognizedWords);
             }
-            transcriptCallback(res.join(" "));
+            if (defaultTargetPlatform == TargetPlatform.android) {
+              transcriptCallback(result.alternates.last.recognizedWords);
+            } else {
+              transcriptCallback(res.join(" "));
+            }
           });
     }
   }
